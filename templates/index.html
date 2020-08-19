@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sticker Creator</title>
+        <h1>Welcome To Sticker Maker</h1>
+    </head>
+    <body>
+        <form action = "/upload/" method = "POST" 
+        enctype = "multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+       <hr class="my-4">
+       <div class="form-group">
+         <div class="file-upload-wrapper">
+        <input type = "file" name = "image_file" required="true"/>
+        </div>
+       </div>
+          <p class="lead">
+       <input id="my-btn" style="margin-top: 0.5rem;margin-left: -1rem;" class="btn btn-primary" 
+       onclick="this.disabled=true;this.form.submit();this.value='Uploading Please Wait...';" type="submit" 
+       value="Create Sticker">
+       </p>
+       </form>
+    </body>
+</html>

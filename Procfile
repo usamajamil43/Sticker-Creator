@@ -1,0 +1,1 @@
+web: gunicorn Sticker_Creator.wsgi --log-file -
