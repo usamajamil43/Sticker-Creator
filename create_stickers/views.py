@@ -1,7 +1,6 @@
 from django.shortcuts import render
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 from PIL import Image
 from scipy.interpolate import splprep, splev
 from django.core.files.storage import FileSystemStorage
