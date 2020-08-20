@@ -30,7 +30,7 @@ def upload(request):
 
         #-- Read image -----------------------------------------------------------------------
         img = cv2.imread('./media/'+filename)
-        img = cv2.resize(img, (600,600))
+        #img = cv2.resize(img, (600,600))
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 
