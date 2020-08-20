@@ -24,7 +24,7 @@ def upload(request):
         CANNY_THRESH_1 = 10
         CANNY_THRESH_2 = 100
         MASK_DILATE_ITER = 10
-        MASK_ERODE_ITER = 20
+        MASK_ERODE_ITER = (3,3)
         MASK_COLOR = (220,220,220) # In BGR format
         print('./media/'+filename,"arbaz")
 
@@ -93,9 +93,9 @@ def upload(request):
         masked = (mask_stack * img)  # Blend
         masked = (masked * 255).astype('uint8')
         
-        masked[:,:,0][back == 255] = 230
-        masked[:,:,1][back == 255] = 230
-        masked[:,:,2][back == 255] = 230
+        masked[:,:,0][back == 255] = 169
+        masked[:,:,1][back == 255] = 169
+        masked[:,:,2][back == 255] = 169
         
         
         
