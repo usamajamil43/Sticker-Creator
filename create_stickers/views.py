@@ -122,9 +122,8 @@ def upload(request):
                     masked[i][j][2]=borcolor
 
 
-        maskedRe=cv2.resize(masked,(512,512))
-        
-        cv2.imwrite('./media/img.jpg', maskedRe)
+                
+        cv2.imwrite('./media/img.jpg', masked)
             #cv2.imshow(<image>)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()          
