@@ -125,8 +125,7 @@ def upload(request):
         maskedRe=cv2.resize(masked,(512,512))
         
         cv2.imwrite('img.png', maskedRe)
-        if maskedRe.mode in ("RGBA", "P"):
-            maskedRe = maskedRe.convert("RGB")
+        maskedRe = maskedRe.convert("RGB")
             #cv2.imshow(<image>)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()          
