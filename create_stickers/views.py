@@ -113,7 +113,7 @@ def upload(request):
         
         borcolor=255
         if not INVTRANS:
-          borcolor=0 
+            borcolor=0 
         for i in range(border.shape[0]):
             for j in range(border.shape[1]):
                 if border[i][j]==255:
@@ -125,12 +125,12 @@ def upload(request):
         maskedRe=cv2.resize(masked,(512,512))
         
         cv2.imwrite('img.png', maskedRe)
-	if maskedRe.mode in ("RGBA", "P"):
-          maskedRe = maskedRe.convert("RGB")
+        if maskedRe.mode in ("RGBA", "P"):
+            maskedRe = maskedRe.convert("RGB")
             #cv2.imshow(<image>)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()          
-	# Save
+            # Save
     try:
         with open('./media/img.jpg', "rb") as f:
             return HttpResponse(f.read(), content_type="image/jpeg")
