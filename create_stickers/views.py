@@ -5,6 +5,7 @@ from PIL import Image
 from scipy.interpolate import splprep, splev
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
+import skimage.exposure
 import numpy
 
 # Create your views here.
