@@ -135,5 +135,5 @@ def upload(request):
     except IOError:
         red = Image.new('RGBA', (1, 1), (255,0,0,0))
         response = HttpResponse(content_type="image/png")
-        red.save(response, "png")
+        red.save(response, "PNG")
         return response
