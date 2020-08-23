@@ -124,9 +124,6 @@ def upload(request):
         maskedRe=cv2.resize(masked,(512,512))
         
         cv2.imwrite('img.jpg', maskedRe)
-        im = Image.open('./media/img.jpg')
-        im = im.convert("RGBA")
-        im.save(hidpi_path, file_type, quality=95)
             #cv2.imshow(<image>)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()          
