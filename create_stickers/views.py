@@ -124,16 +124,16 @@ def upload(request):
 
         maskedRe=cv2.resize(masked,(512,512))
         
-        cv2.imwrite('img.png', maskedRe)
+        cv2.imwrite('img.jpg', maskedRe)
             #cv2.imshow(<image>)
             #cv2.waitKey(0)
             #cv2.destroyAllWindows()          
             # Save
     try:
-        with open('./media/img.png', "rb") as f:
-            return HttpResponse(f.read(), content_type="image/png")
+        with open('./media/img.jpg', "rb") as f:
+            return HttpResponse(f.read(), content_type="image/jpeg")
     except IOError:
         red = Image.new('RGBA', (1, 1), (255,0,0,0))
-        response = HttpResponse(content_type="image/png")
-        red.save(response, "PNG")
+        response = HttpResponse(content_type="image/jpeg")
+        red.save(response, "JPEG")
         return response
