@@ -20,91 +20,113 @@ def upload(request):
         filename = uploaded_file.name
         fs = FileSystemStorage()
         fs.save(filename, uploaded_file)
-        BLUR = 5
-        CANNY_THRESH_1 = 10
-        CANNY_THRESH_2 = 100
-        MASK_DILATE_ITER = 10
-        MASK_ERODE_ITER = (3,3)
-        MASK_COLOR = (220,220,220) # In BGR format
-        print('./media/'+filename,"arbaz")
+        INVTRANS=False
+        BorderValue=10
+        colorCheck=None
+
+        
 
         #-- Read image -----------------------------------------------------------------------
         img = cv2.imread('./media/'+filename)
         #img = cv2.resize(img, (600,600))
+        img1=img.copy()
+        img2=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        shape=img.shape
+        
+        count=0
+        if(img2[0,0]>=127):
+            count+=1;
+        if(img2[shape[0]-1,0]>=127):
+            count+=1;
+        if(img2[0,shape[1]-1]>=127):
+            count+=1;
+        if(img2[shape[0]-1,shape[1]-1]>=127):
+            count+=1;
+        if count>=3:
+            colorCheck=img2[0,0]
+            INVTRANS=True
+        
+
+  
+    
+        if INVTRANS:
+            for i in range(img.shape[0]):
+                for j in range(img.shape[1]):
+                    if img2[i,j]>=colorCheck-15 and img2[i,j]<=colorCheck+15:
+                        for k in range(3):
+                            img[i,j,k]=0
+                    else:
+                        for k in range(3):
+                            img[i,j,k]=255
+    #                img[i,j,0]=abs(255-img[i,j,0])
+    #                img[i,j,1]=abs(255-img[i,j,1])
+    #                img[i,j,2]=abs(255-img[i,j,2])
+
+
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-
-        #-- Edge detection -------------------------------------------------------------------
-        edges = cv2.Canny(gray, CANNY_THRESH_1, CANNY_THRESH_2)
-        edges = cv2.dilate(edges, None)
-        # edges = cv2.erode(edges, None)
-
-        # edges = cv2.dilate(edges, None, iterations=2)
-
-        #-- Find contours in edges, sort by area ---------------------------------------------
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)
+        thresh = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY)[1]
         
-        contour_info = []
-        contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-        # Previously, for a previous version of cv2, this line was: 
-        #  contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-        # Thanks to notes from commenters, I've updated the code but left this note
+# blur threshold image
+        gray = cv2.GaussianBlur(thresh, (0,0), sigmaX=15, sigmaY=15, borderType = cv2.BORDER_DEFAULT)
+        gray = skimage.exposure.rescale_intensity(gray, in_range=(0,127), out_range=(0,255)).astype(np.uint8)
+        thresh = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY)[1]
 
 
+        thresh = cv2.erode(thresh, None, iterations=2)
+        thresh = cv2.dilate(thresh, None, iterations=3)
+    
+   
+        mask = np.zeros_like(gray)  
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+#    for i in range(len(contours)):
+#        check=True
+#        for j in range(len(contours)):
+#            if i!=j and contours[i].any in contours[j]:
+#                check=False
+#        if check:  
+        cv2.drawContours(mask, contours, -1, (255, 255, 255), thickness=-1)
+    
 
-        for c in contours:
-            contour_info.append((
-              c,
-              cv2.isContourConvex(c),
-              cv2.contourArea(c),
-          ))
-        contour_info = sorted(contour_info, key=lambda c: c[2], reverse=True)
-        
-        
-        max_contour = contour_info[0]
-        mask = np.zeros(edges.shape)
-        
-        for c in contour_info:
-            cv2.fillConvexPoly(mask, c[0], (255))
-        # edges = cv2.dilate(edges, None, iterations=2)
-        
-        
-        mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
-        #back=edges==0
-        #mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
-        #mask = cv2.GaussianBlur(mask, (BLUR, BLUR), 0)
-        mask_stack = np.dstack([mask]*3)
+        mask_stack = np.dstack([mask]*3)   
         mask_u8 = np.array(mask,np.uint8)
         back = np.zeros(mask.shape,np.uint8)
         back[mask_u8 == 0] = 255
-        # Create 3-channel alpha mask
-        #-- Blend masked img into MASK_COLOR background --------------------------------------
-        #mask_stack  = mask_stack.astype('float32') / 255.0          # Use float matrices, 
-        #img         = img.astype('float32') / 255.0                 #  for easy blending
+        
+        border = np.zeros(thresh.shape)    
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cv2.drawContours(border, contours, -1, (255, 255, 255), BorderValue)
     
-                         # Convert back to 8-bit 
+      
+            
+    
+   
 
-        #back=edges==0
-        border = cv2.Canny(mask_u8, CANNY_THRESH_1, CANNY_THRESH_2)
-        border = cv2.dilate(border, None, iterations=3)
-         
-
-
-        masked = (mask_stack * img)  # Blend
+        masked = mask_stack * img1  # Blend  
         masked = (masked * 255).astype('uint8')
+
+        masked[:,:,0][back == 255] = 192
+        masked[:,:,1][back == 255] = 192
+        masked[:,:,2][back == 255] = 192
         
-        masked[:,:,0][back == 255] = 169
-        masked[:,:,1][back == 255] = 169
-        masked[:,:,2][back == 255] = 169
+        borcolor=255
+        if not INVTRANS:
+          borcolor=0 
+        for i in range(border.shape[0]):
+            for j in range(border.shape[1]):
+                if border[i][j]==255:
+                    masked[i][j][0]=borcolor
+                    masked[i][j][1]=borcolor
+                    masked[i][j][2]=borcolor
+
+
+        maskedRe=cv2.resize(masked,(512,512))
         
-        
-        
-        
-        cv2.imwrite('./media/img.jpg',masked)
-        #cv2.imshow('img.jpg',masked)
-        #cv2.imshow(<image>)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()          
+        cv2.imwrite('img.png', maskedRe)
+            #cv2.imshow(<image>)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()          
 	# Save
     try:
         with open('./media/img.jpg', "rb") as f:
