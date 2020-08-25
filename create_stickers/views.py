@@ -107,7 +107,7 @@ def upload(request):
         if not INVTRANS:
             borcolor=0 
         else :
-            borcolor=colorCheck
+            borcolor=192
         for i in range(border.shape[0]):
             for j in range(border.shape[1]):
                 if border[i][j]==255:
